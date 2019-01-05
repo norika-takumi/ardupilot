@@ -3,6 +3,7 @@
 #if HAL_WITH_UAVCAN
 
 #include "AP_Baro_UAVCAN.h"
+#include <GCS_MAVLink/GCS.h>
 
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
 #include <AP_UAVCAN/AP_UAVCAN.h>
@@ -171,6 +172,8 @@ void AP_Baro_UAVCAN::handle_temperature(AP_UAVCAN* ap_uavcan, uint8_t node_id, c
 // Read the sensor
 void AP_Baro_UAVCAN::update(void)
 {
+
+    gcs().send_text(MAV_SEVERITY_WARNING, "AP_Baro_UAVCAN::update temp %d",_temperature);
     WITH_SEMAPHORE(_sem_baro);
     if (new_pressure) {
         _copy_to_frontend(_instance, _pressure, _temperature);

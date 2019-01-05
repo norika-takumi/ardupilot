@@ -39,6 +39,7 @@
 #include <AP_GPS/AP_GPS.h>             // ArduPilot GPS library
 #include <DataFlash/DataFlash.h>          // ArduPilot Mega Flash Memory Library
 #include <AP_Baro/AP_Baro.h>
+#include <AP_Sonner/AP_Sonner.h>
 #include <AP_Compass/AP_Compass.h>         // ArduPilot Mega Magnetometer Library
 #include <AP_Math/AP_Math.h>            // ArduPilot Mega Vector/Matrix math Library
 #include <AP_AccelCal/AP_AccelCal.h>                // interface and maths for accelerometer calibration
@@ -242,6 +243,8 @@ private:
     const uint8_t num_flight_modes = 6;
 
     AP_Baro barometer;
+    AP_Sonner sonner;
+
     Compass compass;
     AP_InertialSensor ins;
 
@@ -834,6 +837,7 @@ private:
     void read_barometer(void);
     void init_rangefinder(void);
     void read_rangefinder(void);
+    void read_sonner(void);
     bool rangefinder_alt_ok();
     void rpm_update();
     void init_compass();

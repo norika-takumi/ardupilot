@@ -18,6 +18,7 @@
 #if HAL_WITH_UAVCAN
 
 #include "AP_Compass_UAVCAN.h"
+#include <GCS_MAVLink/GCS.h>
 
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
 #include <AP_Common/Semaphore.h>
@@ -47,6 +48,9 @@ AP_Compass_UAVCAN::AP_Compass_UAVCAN(AP_UAVCAN* ap_uavcan, uint8_t node_id, uint
 
 void AP_Compass_UAVCAN::subscribe_msgs(AP_UAVCAN* ap_uavcan)
 {
+
+
+
     if (ap_uavcan == nullptr) {
         return;
     }

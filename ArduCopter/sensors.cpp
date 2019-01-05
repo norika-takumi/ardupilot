@@ -1,5 +1,11 @@
 #include "Copter.h"
 
+void Copter::read_sonner(void)
+{
+    sonner.update();
+
+}
+
 // return barometric altitude in centimeters
 void Copter::read_barometer(void)
 {

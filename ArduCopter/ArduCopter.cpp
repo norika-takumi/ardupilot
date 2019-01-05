@@ -453,6 +453,15 @@ void Copter::one_hz_loop()
 
     // init compass location for declination
     init_compass_location();
+
+    //read_sonner(); for debug
+    read_sonner();
+
+    gcs().send_text(MAV_SEVERITY_WARNING, "sonner.get_num_drivers() %d", sonner.get_num_drivers());
+    gcs().send_text(MAV_SEVERITY_WARNING, "sonner.get_waterdepth() %d", sonner.get_waterdepth());
+
+
+
 }
 
 // called at 50hz

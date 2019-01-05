@@ -32,6 +32,8 @@
 #include <uavcan/equipment/actuator/Status.hpp>
 
 #include <uavcan/equipment/esc/RawCommand.hpp>
+#include <uavcan/equipment/sonner/WaterDepth.hpp>
+
 #include <uavcan/equipment/indication/LightsCommand.hpp>
 #include <uavcan/equipment/indication/SingleLightCommand.hpp>
 #include <uavcan/equipment/indication/RGB565.hpp>
@@ -41,6 +43,7 @@
 #include <AP_BattMonitor/AP_BattMonitor_UAVCAN.h>
 #include <AP_Compass/AP_Compass_UAVCAN.h>
 #include <AP_Airspeed/AP_Airspeed_UAVCAN.h>
+#include <AP_Sonner/AP_Sonner_UAVCAN.h>
 
 #define LED_DELAY_US 50000
 
@@ -94,6 +97,7 @@ const AP_Param::GroupInfo AP_UAVCAN::var_info[] = {
 // publisher interfaces
 static uavcan::Publisher<uavcan::equipment::actuator::ArrayCommand>* act_out_array[MAX_NUMBER_OF_CAN_DRIVERS];
 static uavcan::Publisher<uavcan::equipment::esc::RawCommand>* esc_raw[MAX_NUMBER_OF_CAN_DRIVERS];
+static uavcan::Publisher<uavcan::equipment::sonner::WaterDepth>* wtr_dpth[MAX_NUMBER_OF_CAN_DRIVERS];
 static uavcan::Publisher<uavcan::equipment::indication::LightsCommand>* rgb_led[MAX_NUMBER_OF_CAN_DRIVERS];
 
 AP_UAVCAN::AP_UAVCAN() :
@@ -205,6 +209,10 @@ void AP_UAVCAN::init(uint8_t driver_index)
     AP_Baro_UAVCAN::subscribe_msgs(this);
     AP_BattMonitor_UAVCAN::subscribe_msgs(this);
     AP_Airspeed_UAVCAN::subscribe_msgs(this);
+    if(AP_Sonner_UAVCAN::subscribe_msgs(this) != true)
+    {
+
+    }
 
     act_out_array[driver_index] = new uavcan::Publisher<uavcan::equipment::actuator::ArrayCommand>(*_node);
     act_out_array[driver_index]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(2));
@@ -213,6 +221,11 @@ void AP_UAVCAN::init(uint8_t driver_index)
     esc_raw[driver_index] = new uavcan::Publisher<uavcan::equipment::esc::RawCommand>(*_node);
     esc_raw[driver_index]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(2));
     esc_raw[driver_index]->setPriority(uavcan::TransferPriority::OneLowerThanHighest);
+
+    wtr_dpth[driver_index] = new uavcan::Publisher<uavcan::equipment::sonner::WaterDepth>(*_node);
+    wtr_dpth[driver_index]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(2));
+    wtr_dpth[driver_index]->setPriority(uavcan::TransferPriority::OneLowerThanHighest);
+
 
     rgb_led[driver_index] = new uavcan::Publisher<uavcan::equipment::indication::LightsCommand>(*_node);
     rgb_led[driver_index]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(20));
@@ -245,6 +258,8 @@ void AP_UAVCAN::init(uint8_t driver_index)
 
 void AP_UAVCAN::loop(void)
 {
+    int cnt;
+    cnt = 0;
     while (true) {
         if (!_initialized) {
             hal.scheduler->delay_microseconds(1000);
@@ -284,7 +299,12 @@ void AP_UAVCAN::loop(void)
                 _SRV_conf[i].esc_pending = false;
             }
         }
-
+        if(cnt > 1000)
+        {
+           // sonner_out_send();
+            cnt = 0;
+        }
+        cnt++;
         led_out_send();
     }
 }
@@ -340,6 +360,20 @@ void AP_UAVCAN::SRV_send_actuator(void)
             }
         }
     } while (repeat_send);
+}
+
+void AP_UAVCAN::sonner_out_send(void)
+{
+    uavcan::equipment::sonner::WaterDepth wtr_dpth_msg;
+
+    wtr_dpth_msg.Sequence_ID = 99;
+    wtr_dpth_msg.WaterDepth = 59;
+    wtr_dpth_msg.Offset = 12;
+  //  wtr_dpth_msg.Maximam_Depth_Range = 125;
+
+
+    wtr_dpth[_driver_index]->broadcast(wtr_dpth_msg);
+
 }
 
 void AP_UAVCAN::SRV_send_esc(void)

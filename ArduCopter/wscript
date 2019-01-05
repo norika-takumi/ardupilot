@@ -25,6 +25,7 @@ def build(bld):
             'AP_Avoidance',
             'AP_AdvancedFailsafe',
             'AP_SmartRTL',
+            'AP_Sonner',
             'AP_Stats',
             'AP_Beacon',
             'AP_Arming',

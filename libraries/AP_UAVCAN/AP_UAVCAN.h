@@ -143,6 +143,9 @@ private:
     void SRV_send_actuator();
     void SRV_send_esc();
 
+    ///// Sonner /////
+    void sonner_out_send();
+
     ///// LED /////
     void led_out_send();
 
