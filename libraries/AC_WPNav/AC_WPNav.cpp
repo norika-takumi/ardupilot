@@ -67,6 +67,16 @@ const AP_Param::GroupInfo AC_WPNav::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("RFND_USE",   10, AC_WPNav, _rangefinder_use, 1),
 
+    // @Param: OV_RANGE
+    // @DisplayName: override throttle renge on auto mode
+    // @Description: override throttle renge on auto mode
+    // @Units: cm
+    // @Range: -999 999
+    // @Increment: 1
+    // @User: Standard
+    AP_GROUPINFO("OV_RANGE",   11, AC_WPNav, _auto_override_range, 250),
+
+
     AP_GROUPEND
 };
 
@@ -94,6 +104,30 @@ AC_WPNav::AC_WPNav(const AP_InertialNav& inav, const AP_AHRS_View& ahrs, AC_PosC
     _wp_accel_cmss = MIN(_wp_accel_cmss, GRAVITY_MSS * 100.0f * tanf(ToRad(_attitude_control.lean_angle_max() * 0.01f)));
     _wp_radius_cm = MAX(_wp_radius_cm, WPNAV_WP_RADIUS_MIN);
 }
+
+static bool enable_override;
+void AC_WPNav::enable_override_throttle()
+{
+    enable_override = true;
+}
+
+bool AC_WPNav::is_enable_override_throttle()
+{
+    return enable_override;
+}
+
+
+void AC_WPNav::disable_override_throttle()
+{
+    enable_override = false;
+}
+
+float AC_WPNav::get_auto_override_range()
+{
+
+    return _auto_override_range;
+}
+
 
 // get expected source of terrain data if alt-above-terrain command is executed (used by Copter's ModeRTL)
 AC_WPNav::TerrainSource AC_WPNav::get_terrain_source() const
@@ -500,7 +534,8 @@ bool AC_WPNav::advance_wp_target_along_track(float dt)
                 _flags.reached_destination = true;
             }else{
                 // regular waypoints also require the copter to be within the waypoint radius
-                Vector3f dist_to_dest = (curr_pos - Vector3f(0,0,terr_offset)) - _destination;
+                Vector3f dist_to_dest = (curr_pos - Vector3f(0,0,terr_offset + offset_alt)) - _destination;
+
                 if( dist_to_dest.length() <= _wp_radius_cm ) {
                     _flags.reached_destination = true;
                 }

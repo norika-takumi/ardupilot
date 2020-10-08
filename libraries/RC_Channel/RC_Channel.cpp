@@ -44,6 +44,7 @@ extern const AP_HAL::HAL& hal;
 #include <AC_Fence/AC_Fence.h>
 #include <AP_VisualOdom/AP_VisualOdom.h>
 #include <AP_AHRS/AP_AHRS.h>
+#include <AC_WPNav/AC_WPNav.h>
 
 #define SWITCH_DEBOUNCE_TIME_MS  200
 
@@ -497,6 +498,7 @@ void RC_Channel::init_aux_function(const aux_func_t ch_option, const AuxSwitchPo
     case AUX_FUNC::RUNCAM_CONTROL:
     case AUX_FUNC::RUNCAM_OSD_CONTROL:
     case AUX_FUNC::SPRAYER:
+    case AUX_FUNC::OVERRIDE_THROTTLE:
         do_aux_function(ch_option, ch_flag);
         break;
     default:
@@ -1063,6 +1065,22 @@ void RC_Channel::do_aux_function(const aux_func_t ch_option, const AuxSwitchPos 
     case AUX_FUNC::EKF_YAW_RESET:
         // used to test emergency yaw reset
         AP::ahrs().request_yaw_reset();
+        break;
+
+    case AUX_FUNC::OVERRIDE_THROTTLE: {
+        switch (ch_flag) {
+        case AuxSwitchPos::LOW:
+            AC_WPNav::disable_override_throttle();
+            break;
+        case AuxSwitchPos::MIDDLE:
+            // nothing
+            break;
+        case AuxSwitchPos::HIGH:
+            AC_WPNav::enable_override_throttle();
+            break;
+        }
+        }
+        
         break;
 
     case AUX_FUNC::SCRIPTING_1:

@@ -51,6 +51,13 @@ public:
     /// provide pointer to terrain database
     void set_terrain(AP_Terrain* terrain_ptr) { _terrain = terrain_ptr; }
 
+    void set_offset_alt(float offset){offset_alt = offset;};
+    float get_auto_override_range();
+    
+    static void enable_override_throttle();
+    static void disable_override_throttle();
+    static bool is_enable_override_throttle();
+
     /// provide rangefinder altitude
     void set_rangefinder_alt(bool use, bool healthy, float alt_cm) { _rangefinder_available = use; _rangefinder_healthy = healthy; _rangefinder_alt_cm = alt_cm; }
 
@@ -297,6 +304,8 @@ protected:
     const AC_AttitudeControl& _attitude_control;
     AP_Terrain              *_terrain;
 
+    float offset_alt;
+
     // parameters
     AP_Float    _wp_speed_cms;          // default maximum horizontal speed in cm/s during missions
     AP_Float    _wp_speed_up_cms;       // default maximum climb rate in cm/s
@@ -336,4 +345,6 @@ protected:
     AP_Int8     _rangefinder_use;
     bool        _rangefinder_healthy;
     float       _rangefinder_alt_cm;
+    AP_Int16    _auto_override_range;
+
 };
