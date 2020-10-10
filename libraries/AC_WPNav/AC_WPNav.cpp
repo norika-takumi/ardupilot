@@ -67,6 +67,15 @@ const AP_Param::GroupInfo AC_WPNav::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("RFND_USE",   10, AC_WPNav, _rangefinder_use, 1),
 
+    // @Param: OV_RANGE
+    // @DisplayName: override throttle renge on auto mode
+    // @Description: override throttle renge on auto mode
+    // @Units: cm
+    // @Range: 0 999
+    // @Increment: 1
+    // @User: Standard
+    AP_GROUPINFO("OV_RANGE",   11, AC_WPNav, _auto_override_range, 250),
+
     AP_GROUPEND
 };
 
@@ -93,6 +102,21 @@ AC_WPNav::AC_WPNav(const AP_InertialNav& inav, const AP_AHRS_View& ahrs, AC_PosC
     // sanity check some parameters
     _wp_accel_cmss = MIN(_wp_accel_cmss, GRAVITY_MSS * 100.0f * tanf(ToRad(_attitude_control.lean_angle_max() * 0.01f)));
     _wp_radius_cm = MAX(_wp_radius_cm, WPNAV_WP_RADIUS_MIN);
+}
+
+void AC_WPNav::set_override_throttle(bool enable)
+{
+    _enable_override = enable;
+}
+
+bool AC_WPNav::is_enable_override_throttle()
+{
+    return _enable_override;
+}
+
+float AC_WPNav::get_auto_override_range()
+{
+    return _auto_override_range;
 }
 
 // get expected source of terrain data if alt-above-terrain command is executed (used by Copter's ModeRTL)
@@ -405,7 +429,7 @@ bool AC_WPNav::advance_wp_target_along_track(float dt)
     _track_error_xy = norm(track_error.x, track_error.y);
 
     // calculate the vertical error
-    float track_error_z = fabsf(track_error.z);
+    float track_error_z = fabsf(track_error.z) - fabsf(_offset_alt);
 
     // get up leash if we are moving up, down leash if we are moving down
     float leash_z = track_error.z >= 0 ? _pos_control.get_leash_up_z() : _pos_control.get_leash_down_z();
@@ -500,7 +524,7 @@ bool AC_WPNav::advance_wp_target_along_track(float dt)
                 _flags.reached_destination = true;
             }else{
                 // regular waypoints also require the copter to be within the waypoint radius
-                Vector3f dist_to_dest = (curr_pos - Vector3f(0,0,terr_offset)) - _destination;
+                Vector3f dist_to_dest = (curr_pos - Vector3f(0,0,terr_offset + _offset_alt)) - _destination;
                 if( dist_to_dest.length() <= _wp_radius_cm ) {
                     _flags.reached_destination = true;
                 }
