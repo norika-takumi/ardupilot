@@ -60,6 +60,10 @@ public:
     ///
     /// z position controller
     ///
+    void set_offset_alt(float offset)
+    {
+        _offset_alt = offset;
+    };
 
     /// set_max_speed_z - sets maximum climb and descent rates
     ///     speed_down can be positive or negative but will always be interpreted as a descent speed
@@ -423,6 +427,8 @@ protected:
 
     LowPassFilterVector2f _accel_target_filter; // acceleration target filter
 
+    // offset
+    float       _offset_alt;
     // ekf reset handling
     uint32_t    _ekf_xy_reset_ms;      // system time of last recorded ekf xy position reset
     uint32_t    _ekf_z_reset_ms;       // system time of last recorded ekf altitude reset
