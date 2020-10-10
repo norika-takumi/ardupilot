@@ -756,6 +756,14 @@ void ModeAuto::wp_run()
         if (!is_zero(target_yaw_rate)) {
             auto_yaw.set_mode(AUTO_YAW_HOLD);
         }
+        if (wp_nav->is_enable_override_throttle() == true) {
+            offset_alt = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
+            offset_alt = (offset_alt/250.0) * wp_nav->get_auto_override_range();
+        } else {
+            offset_alt = 0;
+        }
+        pos_control->set_offset_alt(offset_alt);
+        wp_nav->set_offset_alt(offset_alt);
     }
 
     // if not armed set throttle to zero and exit immediately
