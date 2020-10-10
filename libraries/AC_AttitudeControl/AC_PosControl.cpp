@@ -545,7 +545,7 @@ void AC_PosControl::run_z_controller()
     _limit.pos_down = false;
 
     // calculate altitude error
-    _pos_error.z = _pos_target.z - curr_alt;
+    _pos_error.z = (_pos_target.z + _offset_alt) - curr_alt;
 
     // do not let target altitude get too far from current altitude
     if (_pos_error.z > _leash_up_z) {
