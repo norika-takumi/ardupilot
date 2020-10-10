@@ -497,6 +497,7 @@ void RC_Channel::init_aux_function(const aux_func_t ch_option, const AuxSwitchPo
     case AUX_FUNC::RUNCAM_CONTROL:
     case AUX_FUNC::RUNCAM_OSD_CONTROL:
     case AUX_FUNC::SPRAYER:
+    case AUX_FUNC::OVERRIDE_THROTTLE:
         do_aux_function(ch_option, ch_flag);
         break;
     default:
@@ -1065,6 +1066,7 @@ void RC_Channel::do_aux_function(const aux_func_t ch_option, const AuxSwitchPos 
         AP::ahrs().request_yaw_reset();
         break;
 
+    case AUX_FUNC::OVERRIDE_THROTTLE:
     case AUX_FUNC::SCRIPTING_1:
     case AUX_FUNC::SCRIPTING_2:
     case AUX_FUNC::SCRIPTING_3:
