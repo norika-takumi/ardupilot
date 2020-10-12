@@ -797,6 +797,7 @@ void ModeAuto::wp_run()
 //      called by auto_run at 100hz or more
 void ModeAuto::spline_run()
 {
+    float offset_alt = 0;
     // if not armed set throttle to zero and exit immediately
     if (is_disarmed_or_landed()) {
         make_safe_spool_down();
@@ -812,6 +813,15 @@ void ModeAuto::spline_run()
         if (!is_zero(target_yaw_rate)) {
             auto_yaw.set_mode(AUTO_YAW_HOLD);
         }
+        if (wp_nav->is_enable_override_throttle() == true) {
+            offset_alt = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
+            offset_alt = (offset_alt/250.0) * wp_nav->get_auto_override_range();
+        } else {
+            offset_alt = 0;
+        }
+        pos_control->set_offset_alt(offset_alt);
+        wp_nav->set_offset_alt(offset_alt);
+
     }
 
     // set motors to full range
