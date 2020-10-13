@@ -939,12 +939,12 @@ bool AC_WPNav::advance_spline_target_along_track(float dt)
         _track_error_xy = norm(track_error.x, track_error.y);
 
         // calculate the vertical error
-        float track_error_z = fabsf(track_error.z);
+        float track_error_z = fabsf(track_error.z - _offset_alt);
 
         // get position control leash lengths
         float leash_xy = _pos_control.get_leash_xy();
         float leash_z;
-        if (track_error.z >= 0) {
+        if ((track_error.z - _offset_alt)>= 0) {
             leash_z = _pos_control.get_leash_up_z();
         }else{
             leash_z = _pos_control.get_leash_down_z();
